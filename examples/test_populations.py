@@ -63,7 +63,7 @@ def testpopulation():
         pops.append(pop_types[cell_type]())
 
     pt = PopulationTest()
-    pt.run(pops)
+    pt.run(pops, stim='IClamp')
     pt.show()
 
     if sys.flags.interactive == 0:

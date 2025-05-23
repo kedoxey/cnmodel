@@ -1,6 +1,7 @@
 from __future__ import print_function
 import numpy as np
 import pyqtgraph as pg
+import matplotlib.pyplot as plt
 
 from neuron import h
 
@@ -113,22 +114,44 @@ class PopulationTest(Protocol):
         print ("Postsynaptic CF = %0.2f" % self.post_pop.cells[self.post_cell_ind]['cf'])
         print ("Presynaptic CF = %s" % self.pre_pop.cells[self.pre_cell_inds]['cf'])
         
-        self.win = pg.GraphicsWindow()
-        self.win.resize(1000, 1000)
+        # self.win = pg.GraphicsWindow()
+        # self.win.resize(1000, 1000)
         
-        cmd_plot = self.win.addPlot(title='Stim')
-        try:
-            cmd_plot.plot(self['t'], self['istim'])
-        except:
-            pass
+        # cmd_plot = self.win.addPlot(title='Stim')
+        # try:
+        #     cmd_plot.plot(self['t'], self['istim'])
+        # except:
+        #     pass
+
+        fig, axs = plt.subplots(1,3,figsize=(15,5))
+        axs.ravel()
+
+        axs[0].plot(self['t'], self['istim'])
+        axs[0].set_xlabel('Time (s)')
+        axs[0].set_ylabel('Current (nA)')
+        axs[0].set_title('Stimulus')
         
-        self.win.nextRow()
-        pre_plot = self.win.addPlot(title=self.pre_cells[0].celltype + ' Vm')
+        # self.win.nextRow()
+        # pre_plot = self.win.addPlot(title=self.pre_cells[0].celltype + ' Vm')
+        # for i in range(len(self.pre_cells)):
+        #     pre_plot.plot(self['t'], self['v_pre%d'%i], pen=pg.mkPen(pg.intColor(i, len(self.pre_cells)), hues=len(self.pre_cells), width=1.0))
+
         for i in range(len(self.pre_cells)):
-            pre_plot.plot(self['t'], self['v_pre%d'%i], pen=pg.mkPen(pg.intColor(i, len(self.pre_cells)), hues=len(self.pre_cells), width=1.0))
+            axs[1].plot(self['t'], self[f'v_pre{i}'])
+        axs[1].set_xlabel('Time (s)')
+        axs[1].set_ylabel('Voltage (mV)')
+        axs[1].set_title(f'{self.pre_cells[0].celltype} (pre)')
         
-        self.win.nextRow()
-        post_plot = self.win.addPlot(title='Post Cell: %s' % self.post_cell.type)
-        post_plot.plot(self['t'], self['v_post'])
+        # self.win.nextRow()
+        # post_plot = self.win.addPlot(title='Post Cell: %s' % self.post_cell.type)
+        # post_plot.plot(self['t'], self['v_post'])
+
+        axs[2].plot(self['t'], self['v_post'])
+        axs[2].set_xlabel('Time (s)')
+        axs[2].set_ylabel('Voltage (mV)')
+        axs[2].set_title(f'{self.post_cell.type} (post)')
+
+        fig.tight_layout()
+        fig.savefig(f'population_test_output.png', dpi=300)
         
         

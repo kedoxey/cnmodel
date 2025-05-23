@@ -44,7 +44,8 @@ class SGCInputTest(Protocol):
                                   pip_start=[0.02])
         
         preCell.set_sound_stim(self.stim, seed=seed, simulator=simulator)
-        
+        v_pre = h.Vector().record(preCell.soma(0.5)._ref_v)
+        v_post = h.Vector().record(postCell.soma(0.5)._ref_v)
         self['vm'] = postCell.soma(0.5)._ref_v
         #self['prevm'] = preCell.soma(0.5)._ref_v
         for i in range(30):
@@ -58,6 +59,8 @@ class SGCInputTest(Protocol):
         
         custom_init()
         h.run()
+
+        temp = 5
 
     def show(self):
         self.win = pg.GraphicsWindow()
