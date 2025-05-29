@@ -41,9 +41,9 @@ class PopulationTest(Protocol):
         pre_secs = [cell.soma for cell in pre_cells]
         self.pre_cells = pre_cells
         self.pre_cell_inds = pre_cell_inds
-        self.stim = sound.TonePip(rate=100e3, duration=0.1, f0=cf, dbspl=60,
-                                  ramp_duration=2.5e-3, pip_duration=0.05, 
-                                  pip_start=[0.02])
+        self.stim = sound.TonePip(rate=100e3, duration=50, f0=cf, dbspl=60,
+                                  ramp_duration=2.5e-3, pip_duration=0.2, 
+                                  pip_start=[40])
         
         
         ##
@@ -126,9 +126,9 @@ class PopulationTest(Protocol):
         fig, axs = plt.subplots(1,3,figsize=(15,5))
         axs.ravel()
 
-        axs[0].plot(self['t'], self['istim'])
+        axs[0].plot(self.stim.time, self.stim.sound)
         axs[0].set_xlabel('Time (s)')
-        axs[0].set_ylabel('Current (nA)')
+        # axs[0].set_ylabel('Current (nA)')
         axs[0].set_title('Stimulus')
         
         # self.win.nextRow()

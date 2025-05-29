@@ -4,6 +4,7 @@ from ..util import nstomho
 import numpy as np
 from .cell import Cell
 from ..util import Params
+from .. import synapses
 from .. import data
 
 __all__ = ['Pyramidal', 'PyramidalKanold', 'PyramidalCeballos']
@@ -92,6 +93,20 @@ class Pyramidal(Cell):
                             (terminal.cell.celltype, self.celltype))
         else:
             raise ValueError("Unsupported psd type %s" % psd_type)
+        
+
+    def make_terminal(self, post_cell, term_type, **kwds):
+        """Create a StochasticTerminal and configure it according to the 
+        postsynaptic cell type.
+        """
+        pre_sec = self.soma
+        
+        # Return a simple terminal unless a stochastic terminal was requested.
+        if term_type == 'simple':
+            return synapses.SimpleTerminal(pre_sec, post_cell, 
+                                           spike_source=self.spike_source, **kwds)
+        else:
+            raise ValueError("Unsupported terminal type %s" % term_type)
 
 class PyramidalKanold(Pyramidal, Cell):
     """
@@ -156,6 +171,8 @@ class PyramidalKanold(Pyramidal, Cell):
 
         else:
             raise ValueError(f"Species {species:s} and modeltype {modelType:s} not recognized for {self.celltype:s} cells")
+
+        self.spike_source = None
 
         self.status = {self.somaname: True, 'axon': False, 'dendrites': False, 'pumps': False,
                        'na': nach, 'species': species, 'modelType': modelType, 'modelName': modelName, 'ttx': ttx, 'name': 'Pyramidal',

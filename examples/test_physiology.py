@@ -22,7 +22,7 @@ import scipy.stats
 from neuron import h
 import pyqtgraph as pg
 import pyqtgraph.multiprocess as mp
-from pyqtgraph.Qt import QtGui, QtCore
+from pyqtgraph.Qt import QtWidgets, QtCore
 from cnmodel import populations
 from cnmodel.util import sound, random_seed
 from cnmodel.protocols import Protocol
@@ -43,17 +43,19 @@ class CNSoundStim(Protocol):
         # This creates a complete set of _virtual_ cells for each population. No
         # cells are instantiated at this point.
         self.sgc = populations.SGC(model="dummy")
-        self.bushy = populations.Bushy()
+        # self.bushy = populations.Bushy()
         self.dstellate = populations.DStellate()
         self.tstellate = populations.TStellate()
         self.tuberculoventral = populations.Tuberculoventral()
+        self.pyramidal = populations.Pyramidal()
 
         pops = [
             self.sgc,
             self.dstellate,
             self.tuberculoventral,
             self.tstellate,
-            self.bushy,
+            # self.bushy,
+            self.pyramidal
         ]
         self.populations = OrderedDict([(pop.type, pop) for pop in pops])
 
@@ -65,25 +67,29 @@ class CNSoundStim(Protocol):
         # This only defines the connections between populations; no synapses are
         # created at this stage.
         self.sgc.connect(
-            self.bushy, self.dstellate, self.tuberculoventral, self.tstellate
+            # self.bushy,
+            self.pyramidal, self.dstellate, self.tuberculoventral, self.tstellate
         )
         self.dstellate.connect(
-            self.bushy, self.tstellate
+            # self.bushy, 
+            self.pyramidal, self.tstellate
         )  # should connect to dstellate as well?
-        self.tuberculoventral.connect(self.bushy, self.tstellate)
-        self.tstellate.connect(self.bushy)
+        self.tuberculoventral.connect(self.pyramidal, self.tstellate)  # self.bushy, self.tstellate)
+        self.tstellate.connect(self.pyramidal)  # self.bushy)
 
         # Select cells to record from.
         # At this time, we actually instantiate the selected cells.
         frequencies = [16e3]
         cells_per_band = 1
         for f in frequencies:
-            bushy_cell_ids = self.bushy.select(cells_per_band, cf=f, create=True)
+            # bushy_cell_ids = self.bushy.select(cells_per_band, cf=f, create=True)
+            pyramidal_cell_ids = self.pyramidal.select(cells_per_band, cf=f, create=True)
 
         # Now create the supporting circuitry needed to drive the cells we selected.
         # At this time, cells are created in all populations and automatically
         # connected with synapses.
-        self.bushy.resolve_inputs(depth=2)
+        # self.bushy.resolve_inputs(depth=2)
+        self.pyramidal.resolve_inputs(depth=2)
         # self.tstellate.resolve_inputs(depth=2)
         # Note that using depth=2 indicates the level of recursion to use when
         # resolving inputs. For example, resolving inputs for the bushy cell population
@@ -107,7 +113,7 @@ class CNSoundStim(Protocol):
         self.sgc.set_sound_stim(stim, parallel=False)
 
         # set up recording vectors
-        for pop in self.bushy, self.dstellate, self.tstellate, self.tuberculoventral:
+        for pop in self.pyramidal, self.dstellate, self.tstellate, self.tuberculoventral:  # self.bushy, self.dstellate, self.tstellate, self.tuberculoventral:
             for ind in pop.real_cells():
                 cell = pop.get_cell(ind)
                 self[cell] = cell.soma(0.5)._ref_v
@@ -149,17 +155,17 @@ class CNSoundStim(Protocol):
         return vec
 
 
-class NetworkSimDisplay(pg.QtGui.QSplitter):
+class NetworkSimDisplay(pg.QtWidgets.QSplitter):
     def __init__(self, prot, results, baseline, response):
-        pg.QtGui.QSplitter.__init__(self, QtCore.Qt.Horizontal)
+        pg.QtWidgets.QSplitter.__init__(self, QtCore.Qt.Horizontal)
         self.selected_cell = None
 
         self.prot = prot
         self.baseline = baseline  # (start, stop)
         self.response = response  # (start, stop)
 
-        self.ctrl = QtGui.QWidget()
-        self.layout = pg.QtGui.QVBoxLayout()
+        self.ctrl = QtWidgets.QWidget()
+        self.layout = pg.QtWidgets.QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.ctrl.setLayout(self.layout)
         self.addWidget(self.ctrl)
@@ -168,9 +174,9 @@ class NetworkSimDisplay(pg.QtGui.QSplitter):
         self.layout.addWidget(self.nv)
         self.nv.cell_selected.connect(self.nv_cell_selected)
 
-        self.stim_combo = pg.QtGui.QComboBox()
+        self.stim_combo = pg.QtWidgets.QComboBox()
         self.layout.addWidget(self.stim_combo)
-        self.trial_combo = pg.QtGui.QComboBox()
+        self.trial_combo = pg.QtWidgets.QComboBox()
         self.layout.addWidget(self.trial_combo)
         self.results = OrderedDict()
         self.stim_order = []
@@ -208,7 +214,7 @@ class NetworkSimDisplay(pg.QtGui.QSplitter):
 
         df = np.log10(self.freqs[1]) - np.log10(self.freqs[0])
         dl = self.levels[1] - self.levels[0]
-        self.stim_rect = QtGui.QGraphicsRectItem(QtCore.QRectF(0, 0, df, dl))
+        self.stim_rect = QtWidgets.QGraphicsRectItem(QtCore.QRectF(0, 0, df, dl))
         self.stim_rect.setPen(pg.mkPen("c"))
         self.stim_rect.setZValue(20)
         self.tuning_plot.addItem(self.stim_rect)
@@ -233,6 +239,9 @@ class NetworkSimDisplay(pg.QtGui.QSplitter):
         self.stim_plot.setXLink(self.cell_plot)
 
         self.stim_selected()
+
+        # Here
+        pickle.dump(self.results, open('test_physiology-result_25freqs-pyramidal.pkl', "wb"))
 
     def update_stim_plot(self):
         stim = self.selected_stim
@@ -440,32 +449,33 @@ class NetworkSimDisplay(pg.QtGui.QSplitter):
         )
 
 
-class NetworkTree(QtGui.QTreeWidget):
+class NetworkTree(QtWidgets.QTreeWidget):
     def __init__(self, prot):
         self.prot = prot
-        QtGui.QTreeWidget.__init__(self)
+        QtWidgets.QTreeWidget.__init__(self)
         self.setColumnCount(2)
 
         self.update_tree()
 
     def update_tree(self):
-        for pop_name in ["bushy", "tstellate", "dstellate", "tuberculoventral", "sgc"]:
+        # for pop_name in ["bushy", "tstellate", "dstellate", "tuberculoventral", "sgc"]:
+        for pop_name in ["pyramidal", "tstellate", "dstellate", "tuberculoventral", "sgc"]:
             if not hasattr(self.prot, pop_name):
                 continue
             pop = getattr(self.prot, pop_name)
-            grp = QtGui.QTreeWidgetItem([pop_name])
+            grp = QtWidgets.QTreeWidgetItem([pop_name])
             self.addTopLevelItem(grp)
             for cell in pop.real_cells():
                 self.add_cell(grp, pop, cell)
 
     def add_cell(self, grp_item, pop, cell):
-        item = QtGui.QTreeWidgetItem([str(cell)])
+        item = QtWidgets.QTreeWidgetItem([str(cell)])
         grp_item.addChild(item)
         all_conns = pop.cell_connections(cell)
         if all_conns == 0:
             return
         for cpop, conns in list(all_conns.items()):
-            pop_grp = QtGui.QTreeWidgetItem([cpop.celltype, str(conns)])
+            pop_grp = QtWidgets.QTreeWidgetItem([cpop.celltype, str(conns)])
             item.addChild(pop_grp)
 
 
@@ -602,7 +612,7 @@ def main():
     nreps = 1
     fmin = 4e3
     fmax = 32e3
-    octavespacing = 1 / 2.0
+    octavespacing = 1 / 8.0
     # octavespacing = 1.
     n_frequencies = int(np.log2(fmax / fmin) / octavespacing) + 1
     fvals = (
@@ -689,8 +699,11 @@ def main():
     elapsed = timeit.default_timer() - start_time
     print(
         "Elapsed time for %d stimuli: %f  (%f sec per stim), synapses: %s"
-        % (len(tasks), elapsed, elapsed / len(tasks), prot.bushy._synapsetype)
+        % (len(tasks), elapsed, elapsed / len(tasks), prot.pyramidal._synapsetype)
+        # % (len(tasks), elapsed, elapsed / len(tasks), prot.bushy._synapsetype)
     )
+
+    # pickle.dump(results, open('test_physiology-result_25freqs-5reps.pkl', "wb"))
 
     nd = NetworkSimDisplay(
         prot, results, baseline=stimpar["baseline"], response=stimpar["response"]
@@ -698,7 +711,7 @@ def main():
     nd.show()
 
     if sys.flags.interactive == 0:
-        pg.QtGui.QApplication.exec_()
+        pg.QtWidgets.QApplication.exec_()
 
 if __name__ == "__main__":
     main()

@@ -61,14 +61,18 @@ class Tuberculoventral(Cell):
             post_sec = self.soma
         
         if psd_type == 'simple':
-            if terminal.cell.celltype in ['sgc', 'dstellate', 'tuberculoventral']:
-                weight = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
+            if terminal.cell.celltype in ['sgc', 'dstellate', 'tuberculoventral', 'pyramidal']:
+                term_celltype = terminal.cell.celltype
+                if 'pyr' in term_celltype:
+                    term_celltype = 'sgc'
+
+                weight = data.get('%s_synapse' % term_celltype, species=self.species,
                         post_type=self.celltype, field='weight')
-                tau1 = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
+                tau1 = data.get('%s_synapse' % term_celltype, species=self.species,
                         post_type=self.celltype, field='tau1')
-                tau2 = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
+                tau2 = data.get('%s_synapse' % term_celltype, species=self.species,
                         post_type=self.celltype, field='tau2')
-                erev = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
+                erev = data.get('%s_synapse' % term_celltype, species=self.species,
                         post_type=self.celltype, field='erev')
                 return self.make_exp2_psd(post_sec, terminal, weight=weight, loc=loc,
                         tau1=tau1, tau2=tau2, erev=erev)
