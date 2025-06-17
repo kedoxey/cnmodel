@@ -78,7 +78,7 @@ class IC(Cell):
         else:
             raise ValueError("Unsupported psd type %s" % psd_type)
 
-    def make_terminal(self, post_cell, term_type, **kwds):
+    def make_terminal(self, post_cell, term_type='simple', **kwds):
         if term_type == 'simple':
             return synapses.SimpleTerminal(self.soma, post_cell, **kwds)
 
@@ -222,7 +222,7 @@ class ICDefault(IC):
             field='na_type')
         pars = Params(cap=cellcap, natype=chtype)
         if self.status['modelName'] == 'RM03':
-            for g in ['%s_gbar' % pars.natype, 'kht_gbar', 'klt_gbar', 'ih_gbar', 'leak_gbar']:
+            for g in ['%s_gbar' % pars.natype, 'kht_gbar', 'ka_gbar', 'ih_gbar', 'leak_gbar', 'leak_erev', 'ih_eh', 'e_k', 'e_na']:
                 pars.additem(g,  data.get(dataset, species=species, model_type=modelType,
                     field=g))
         else:
@@ -258,16 +258,16 @@ class ICDefault(IC):
          
         soma = self.soma
         if self.status['species'] == 'mouse':
+            if self.status['modelType'] not in ['I-c', 'I-t']:
+                raise ValueError(f"\nModel type {self.status['modelType']:s} is not implemented for mouse {self.celltype.title():s} cells")
             if self.debug:
-                print (f"  Setting conductances for mouse {self.celltype.title():s} {self.status['modelType']:s} cell, Rothman and Manis, 2003")
-
+                print(f"  Setting Conductances for Guinea Pig {self.status['modelType']:s} {self.celltype.title():s}  cell, Rothman and Manis, 2003")
             self.c_m = 0.9  # default in units of F/cm^2
             self.vrange = [-75., -55.]
             self.i_test_range={'pulse': (-0.15, 0.15, 0.01)}
             self._valid_temperatures = (22., 38.)
             if self.status['temperature'] is None:
                 self.set_temperature(22.)
-
             sf = 1.0
             if self.status['temperature'] == 38.:  # adjust for 2003 model conductance levels at 38
                 sf = 3.03  # Q10 of 2, 22->38C. (p3106, R&M2003c)
@@ -275,9 +275,10 @@ class ICDefault(IC):
             self.set_soma_size_from_Cm(self.pars.cap)
             self.adjust_na_chans(soma, sf=sf)
             soma().kht.gbar = nstomho(self.pars.kht_gbar, self.somaarea)
-            soma().klt.gbar = nstomho(self.pars.klt_gbar, self.somaarea)
+            soma().ka.gbar = nstomho(self.pars.ka_gbar, self.somaarea)
             soma().ihvcn.gbar = nstomho(self.pars.ih_gbar, self.somaarea)
             soma().leak.gbar = nstomho(self.pars.leak_gbar, self.somaarea)
+            soma().leak.erev = self.pars.leak_erev
             self.axonsf = 0.5
             
         else:

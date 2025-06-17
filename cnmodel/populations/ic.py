@@ -16,7 +16,7 @@ class IC(Population):
             ('cf', float),
             ('input_sr', list)
         ]
-        super(IC, self).__init__(species, len(freqs), fields=fields, **kwds)
+        super(IC, self).__init__(species, len(freqs), fields=fields, synapsetype='simple', **kwds)
         self._cells['cf'] = freqs
         self._cells['input_sr'] = [np.tile([1., 1., 1.], len(freqs))]
     

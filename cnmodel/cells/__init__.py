@@ -15,6 +15,7 @@ from .octopus import *
 from .tuberculoventral import *
 from .msoprincipal import *
 from .hh import *
+from .ic import *
 
 from .cell import Cell
 
