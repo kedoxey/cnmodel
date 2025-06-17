@@ -466,3 +466,41 @@ delay        0
 
 """)
 
+
+add_table_data('pyramidal_synapse', row_key='field', col_key='post_type', 
+               species='mouse', data=u"""
+
+Estimated double exponential synapse parameters based on a pyramidal cell 
+resulting in driven spiking of an IC cell
+
+-----------------------------------------------------------------------------------------------------------------------------------
+             ic           
+                               
+weight       0.004
+tau1         0.5464 [1]
+tau2         1.5 
+erev         0.0 
+-----------------------------------------------------------------------------------------------------------------------------------
+
+[1] Rabang et al. 2012
+
+""")
+
+add_table_data('ic_synapse', row_key='field', col_key='post_type', 
+               species='mouse', data=u"""
+
+Estimated double exponential synapse parameters based on experimentally recorded
+fusiform (pyramidal) and vertical (tuberculoventral) cell responses in DCN to IC inputs (Tim Balmer).
+
+-----------------------------------------------------------------------------------------------------------------------------------
+             pyramidal      tuberculoventral           
+                               
+weight       0.0005         0.01
+tau1         0.5464 [1]     0.5464 [1]
+tau2         6 [1]          2.5
+erev         0.0            0.0
+-----------------------------------------------------------------------------------------------------------------------------------
+
+[1] Rabang et al. 2012 (AMPA synapse)
+
+""")

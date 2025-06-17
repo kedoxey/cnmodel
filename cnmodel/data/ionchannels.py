@@ -14,24 +14,24 @@ add_table_data('RM03_channels', row_key='field', col_key='model_type',
 This table describes the ion channel densities (and voltage shifts if necessary)
 for different cell types in the original Rothman Manis 2003 model.
 Data from Table 1, except for "octopus" cells, which is modified (see note 3)
-map to cell:    bushy-II      bushy-II-I    tstellate     tstellate-t   bushy-I-II    octopus
+map to cell:    bushy-II      bushy-II-I    tstellate     tstellate-t   bushy-I-II    octopus       ic
 -----------------------------------------------------------------------------------------------------------------------------------
-               II            II-I          I-c           I-t           I-II          II-o
+               II            II-I          I-c           I-t           I-II          II-o           I-c
 
-nacn_gbar      1000. [1]     1000. [1]     1000. [1]     1000. [1]     1000. [2]     0000. [3]
-jsrna_gbar     0000. [1]     0000. [1]     0000. [1]     0000. [1]     0000. [2]     1000. [3]
-kht_gbar       150.0 [1]     150.0 [1]     150.0 [1]     80.0  [1]     150.0 [2]     150.0 [3] 
-klt_gbar       200.0 [1]     35.0  [1]     0.0   [1]     0.0   [1]     20.0  [2]     1000. [3] 
-ka_gbar        0.0   [1]     0.0   [1]     0.0   [1]     65.0  [1]     0.0   [2]     0.0   [3]
-ih_gbar        20.0  [1]     3.5   [1]     0.5   [1]     0.5   [1]     2.0   [2]     30.0  [3]
-leak_gbar      2.0   [1]     2.0   [1]     2.0   [1]     2.0   [1]     2.0   [2]     2.0   [3]
-leak_erev      -65   [1]     -65   [1]     -65   [1]     -65   [1]     -65   [2]     -65   [3]
-na_type        nacn  [1]     nacn  [1]     nacn  [1]     nacn  [1]     nacn  [2]     jsrna [3]
-ih_type        ihvcn [1]     ihvcn [1]     ihvcn [1]     ihvcn [1]     ihvcn [2]     ihvcn [3]
-soma_Cap       12.0  [1]     12.0  [1]     12.0  [1]     12.0  [1]     12.0  [2]     25.0  [3]
-e_k            -84   [1]     -84   [1]     -84   [1]     -84   [2]     -84   [2]     -84   [2] 
-e_na           50.   [1]     50.   [1]     50.   [1]     50.   [2]     50.   [2]     50.   [2] 
-ih_eh          -43   [1]     -43   [1]     -43   [1]     -43   [2]     -43   [2]     -43   [2] 
+nacn_gbar      1000. [1]     1000. [1]     1000. [1]     1000. [1]     1000. [2]     0000. [3]      1000. [1]
+jsrna_gbar     0000. [1]     0000. [1]     0000. [1]     0000. [1]     0000. [2]     1000. [3]      0000. [1]
+kht_gbar       150.0 [1]     150.0 [1]     150.0 [1]     80.0  [1]     150.0 [2]     150.0 [3]      150.0 [1]
+klt_gbar       200.0 [1]     35.0  [1]     0.0   [1]     0.0   [1]     20.0  [2]     1000. [3]      0.0   [1]
+ka_gbar        0.0   [1]     0.0   [1]     0.0   [1]     65.0  [1]     0.0   [2]     0.0   [3]      0.0   [1]
+ih_gbar        20.0  [1]     3.5   [1]     0.5   [1]     0.5   [1]     2.0   [2]     30.0  [3]      0.5   [1]
+leak_gbar      2.0   [1]     2.0   [1]     2.0   [1]     2.0   [1]     2.0   [2]     2.0   [3]      2.0   [1]
+leak_erev      -65   [1]     -65   [1]     -65   [1]     -65   [1]     -65   [2]     -65   [3]      -65   [1]
+na_type        nacn  [1]     nacn  [1]     nacn  [1]     nacn  [1]     nacn  [2]     jsrna [3]      nacn  [1]
+ih_type        ihvcn [1]     ihvcn [1]     ihvcn [1]     ihvcn [1]     ihvcn [2]     ihvcn [3]      ihvcn [1]
+soma_Cap       12.0  [1]     12.0  [1]     12.0  [1]     12.0  [1]     12.0  [2]     25.0  [3]      12.0  [1]
+e_k            -84   [1]     -84   [1]     -84   [1]     -84   [2]     -84   [2]     -84   [2]      -84   [1]
+e_na           50.   [1]     50.   [1]     50.   [1]     50.   [2]     50.   [2]     50.   [2]      50.   [1]
+ih_eh          -43   [1]     -43   [1]     -43   [1]     -43   [2]     -43   [2]     -43   [2]      -43   [1]
 
 -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -49,6 +49,39 @@ ih_eh          -43   [1]     -43   [1]     -43   [1]     -43   [2]     -43   [2]
     based on Rothman and Manis, 2003; concept from Cao and Oertel
 
 [4] Designation for elevated LTK and Ih for octopus cells
+
+""")
+
+add_table_data('RM03_channels', row_key='field', col_key='model_type', 
+               species='mouse', data=u"""
+
+This table describes the ion channel densities (and voltage shifts if necessary)
+for Inferior Colliculus cell type based on tstellate I-c model from Rothman Manis 2003.
+Data from Table 1, except for "octopus" cells, which is modified (see note 3)
+map to cell:   ic
+----------------------------------------------------------------------------------------
+               I-c
+
+nacn_gbar      1000. [1]
+jsrna_gbar     0000. [1]
+kht_gbar       150.0 [1]
+klt_gbar       0.0   [1]
+ka_gbar        0.0   [1]
+ih_gbar        0.5   [1]
+leak_gbar      2.0   [1]
+leak_erev      -65   [1]
+na_type        nacn  [1]
+ih_type        ihvcn [1]
+soma_Cap       12.0  [1]
+e_k            -84   [1]
+e_na           50.   [1]
+ih_eh          -43   [1]
+
+-------------------------------------------------------------------------------------------
+
+[1] Rothman and Manis, 2003
+    Age "adult", Temperature=22C
+    Units are nS.
 
 """)
 
