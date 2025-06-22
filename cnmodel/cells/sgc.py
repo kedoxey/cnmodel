@@ -3,6 +3,7 @@ from neuron import h
 from ..util import nstomho
 from ..util import Params
 import numpy as np
+import random
 from .cell import Cell
 from .. import synapses
 from .. import an_model
@@ -120,11 +121,17 @@ class DummySGC(SGC):
         self._stvec = h.Vector(times)
         self.vecstim.play(self._stvec)
 
-    def set_sound_stim(self, stim, seed, simulator=None):
+    def set_sound_stim(self, stim, seed, simulator=None, hearing='normal'):
         """ Set the sound stimulus used to generate this cell's spike train.
         """
         self._sound_stim = stim
         spikes = self.generate_spiketrain(stim, seed, simulator)
+        if 'loss' in hearing:
+            print('hearing loss implemented for cell')
+            loss_frac = 0.80
+            ind_remove = set(random.sample(list(range(len(spikes))), int(loss_frac*len(spikes))))
+            spikes = [n for i, n in enumerate(spikes) if i not in ind_remove]
+
         self.set_spiketrain(spikes)
 
     def generate_spiketrain(self, stim, seed, simulator=None):

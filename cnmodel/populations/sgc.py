@@ -1,10 +1,11 @@
 import logging
 import numpy as np
-import pyqtgraph.multiprocess as mp
+# import pyqtgraph.multiprocess as mp
+import multiprocessing as mp
 
 from .population import Population
 from .. import cells
-
+from ..util import sound
 
 class SGC(Population):
     """A population of spiral ganglion cells.
@@ -48,7 +49,13 @@ class SGC(Population):
         # SGC does not support any inputs
         assert len(self.connections) == 0
 
-    def set_sound_stim(self, stim, parallel=False):
+    def parallel_spiketrains(self, stim, seed, ind, train):
+        cell = self.get_cell(ind)
+        spiketrain = cell.generate_spiketrain(stim, seed)
+        train.extend([spkt for spkt in spiketrain])
+        # return spiketrain
+
+    def set_sound_stim(self, stim, parallel=False, hearing='normal', loss_lim=99e3):
         """Set a sound stimulus to generate spike trains for all (real) cells
         in this population.
         """
@@ -58,23 +65,47 @@ class SGC(Population):
             for i, ind in enumerate(real):
                 #logging.info("Assigning spike train to SGC %d (%d/%d)", ind, i, len(real))
                 cell = self.get_cell(ind)
-                cell.set_sound_stim(stim, self.next_seed)
+                cell_hearing = 'normal'
+                if (cell.cf > loss_lim) and ('loss' in hearing):
+                    # stim = sound.TonePip(
+                    #     rate=stim.opts['rate'],
+                    #     duration=stim.opts["duration"],
+                    #     f0=stim.opts['f0'],
+                    #     dbspl=stim.opts['dbspl']-20,  # dura 0.2, pip_start 0.1 pipdur 0.04
+                    #     ramp_duration=stim.opts['ramp_duration'],
+                    #     pip_duration=stim.opts["pip_duration"],
+                    #     pip_start=stim.opts["pip_start"],
+                    # )
+                    cell_hearing = 'loss'
+                    print('hearing loss implemented for sgc pop')
+                cell.set_sound_stim(stim, self.next_seed, hearing=cell_hearing)
                 self.next_seed += 1
 
         else:
             seeds = range(self.next_seed, self.next_seed + len(real))
             self.next_seed = seeds[-1] + 1
-            tasks = zip(seeds, real)
-            trains = [None] * len(tasks)
+            tasks = [(s,r) for s,r in zip(seeds, real)]
+            # trains = [None] * len(tasks)
             # generate spike trains in parallel
-            with mp.Parallelize(enumerate(tasks), trains=trains, progressDialog='Generating SGC spike trains..') as tasker:
-                for i, x in tasker:
-                    seed, ind = x
-                    cell = self.get_cell(ind)
-                    train = cell.generate_spiketrain(stim, seed)
-                    tasker.trains[i] = train
+            # with mp.Parallelize(enumerate(tasks), trains=trains, progressDialog='Generating SGC spike trains..') as tasker:
+            #     for i, x in tasker:
+            #         seed, ind = x
+            #         cell = self.get_cell(ind)
+            #         train = cell.generate_spiketrain(stim, seed)
+            #         tasker.trains[i] = train
+
+            trains = []
+            for seed, ind in tasks:
+                train = mp.Manager().list()
+                p1 = mp.Process(target=self.parallel_spiketrains, args=(stim, seed, ind, train))
+                p1.start()
+                p1.join()
+                trains.append(list(train))
             # collected all trains; now assign to cells
             for i,ind in enumerate(real):
                 cell = self.get_cell(ind)
                 cell.set_spiketrain(trains[i])
-            
+    
+    
+
+
