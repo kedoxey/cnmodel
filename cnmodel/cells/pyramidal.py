@@ -50,7 +50,7 @@ class Pyramidal(Cell):
             post_sec = self.soma
         
         if psd_type == 'simple':
-            if terminal.cell.celltype in ['sgc', 'dstellate', 'tuberculoventral', 'cartwheel']:
+            if terminal.cell.celltype in ['sgc', 'dstellate', 'tuberculoventral', 'cartwheel', 'ic']:
                 weight = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
                         post_type=self.celltype, field='weight')
                 tau1 = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
@@ -95,7 +95,7 @@ class Pyramidal(Cell):
             raise ValueError("Unsupported psd type %s" % psd_type)
         
 
-    def make_terminal(self, post_cell, term_type, **kwds):
+    def make_terminal(self, post_cell, term_type='simple', **kwds):
         """Create a StochasticTerminal and configure it according to the 
         postsynaptic cell type.
         """

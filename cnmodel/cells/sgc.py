@@ -125,12 +125,19 @@ class DummySGC(SGC):
         """ Set the sound stimulus used to generate this cell's spike train.
         """
         self._sound_stim = stim
-        spikes = self.generate_spiketrain(stim, seed, simulator)
+        ### Method 1
+        # spikes = self.generate_spiketrain(stim, seed, simulator)
+        # if 'loss' in hearing:
+        #     loss_frac = 0.70
+        #     ind_remove = set(random.sample(list(range(len(spikes))), int(loss_frac*len(spikes))))
+        #     spikes = [n for i, n in enumerate(spikes) if i not in ind_remove]
+
+        ### Method 3
         if 'loss' in hearing:
             print('hearing loss implemented for cell')
-            loss_frac = 0.80
-            ind_remove = set(random.sample(list(range(len(spikes))), int(loss_frac*len(spikes))))
-            spikes = [n for i, n in enumerate(spikes) if i not in ind_remove]
+            spikes = []
+        else:
+            spikes = self.generate_spiketrain(stim, seed, simulator)
 
         self.set_spiketrain(spikes)
 

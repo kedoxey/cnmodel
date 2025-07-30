@@ -61,7 +61,7 @@ class Tuberculoventral(Cell):
             post_sec = self.soma
         
         if psd_type == 'simple':
-            if terminal.cell.celltype in ['sgc', 'dstellate', 'tuberculoventral', 'pyramidal']:
+            if terminal.cell.celltype in ['sgc', 'dstellate', 'tuberculoventral', 'pyramidal', 'ic']:
                 term_celltype = terminal.cell.celltype
                 if 'pyr' in term_celltype:
                     term_celltype = 'sgc'

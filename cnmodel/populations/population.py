@@ -1,4 +1,5 @@
 import logging
+import random
 import scipy.stats
 import numpy as np
 
@@ -26,11 +27,13 @@ class Population(object):
     Subclasses represent populations for a specific cell type, and at least
     need to reimplement the `create_cell` and `connection_stats` methods.
     """
-    def __init__(self, species, size, fields, synapsetype='multisite', **kwds):
+    def __init__(self, species, size, fields, synapsetype='multisite', hearing='normal', loss_limit=99e3, **kwds):
         self._species = species
         self._post_connections = []  # populations this one connects to
         self._pre_connections = []  # populations connecting to this one
         self._synapsetype = synapsetype
+        self._hearing = hearing
+        self._loss_limit = loss_limit
         # fields are a numpy record array with information about each cell in the 
         # population
         fields = [
@@ -122,6 +125,7 @@ class Population(object):
             
             # select cells from each population to connect to this cell
             for pop in self._pre_connections:
+                print(f'pre: {pop.type}, post: {self.type}')
                 pre_cells = self.connect_pop_to_cell(pop, i)
                 if showlog:
                     logging.info("  connected %d cells from %s", len(pre_cells), pop)

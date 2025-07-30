@@ -235,12 +235,13 @@ and should be added to this table when more data are available (Golding et al.,
 J. Neurosci. 15: 3138, 1995)
 
 ----------------------------------------------------------------------------------------------
-                  bushy       tstellate   dstellate   octopus     pyramidal    tuberculoventral
-sgc               3.3±0.6 [2] 6.5±1.0 [2] 35±0 [3]    60±0 [2]    48±0 [5]     24±0 [5]
-dstellate         7 [1]       20 [1]      3 [1]       0 [4]       15 [5]       15 [5]
-tstellate         0 [6]       0 [6]       0 [6]       0 [6]       0 [6]        0 [6]
-tuberculoventral  6           6           0           0 [4]       21 [5]       0 [7]
-pyramidal         0           0           0           0           0            0    
+                  bushy       tstellate   dstellate   octopus     pyramidal    tuberculoventral     ic
+sgc               3.3±0.6 [2] 6.5±1.0 [2] 35±0 [3]    60±0 [2]    48±0 [5]     24±0 [5]             0
+dstellate         7 [1]       20 [1]      3 [1]       0 [4]       15 [5]       15 [5]               0
+tstellate         0 [6]       0 [6]       0 [6]       0 [6]       0 [6]        0 [6]                0
+tuberculoventral  6           6           0           0 [4]       21 [5]       0 [7]                0
+pyramidal         0           0           0           0           0            0                    15
+ic                0           0           0           0           15           15                   0
 ----------------------------------------------------------------------------------------------
 
 [1] Guesses based on Campagnola & Manis 2014
@@ -291,12 +292,13 @@ All values are expressed as the sigma for a lognormal distribution scaled to
 the CF of the postsynaptic cell. 
 
 ----------------------------------------------------------------------------------------------
-                  bushy       tstellate   dstellate   octopus     pyramidal    tuberculoventral
-sgc               0.05 [1]    0.1 [1]     0.4 [1]     0.5 [5]     0.1 [1]      0.1 [1]
-dstellate         0.208 [2]   0.347 [2]   0.5 [1]     0           0.2 [1]      0.2 [1]      
-tstellate         0.1 [4]     0.1 [4]     0           0           0            0    
-tuberculoventral  0.069 [3]   0.111 [3]   0           0           0.15 [1]     0    
-pyramidal         0           0           0           0           0            0    
+                  bushy       tstellate   dstellate   octopus     pyramidal    tuberculoventral     ic
+sgc               0.05 [1]    0.1 [1]     0.4 [1]     0.5 [5]     0.1 [1]      0.1 [1]              0
+dstellate         0.208 [2]   0.347 [2]   0.5 [1]     0           0.2 [1]      0.2 [1]              0
+tstellate         0.1 [4]     0.1 [4]     0           0           0            0                    0
+tuberculoventral  0.069 [3]   0.111 [3]   0           0           0.15 [1]     0                    0
+pyramidal         0           0           0           0           0            0                    0.2
+ic                0           0           0           0           0.2           0.1                   0
 ----------------------------------------------------------------------------------------------
 
 [1] Guess based on axonal / dendritic morphology.

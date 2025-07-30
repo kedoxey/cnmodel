@@ -1,4 +1,5 @@
 import logging
+import random
 import numpy as np
 # import pyqtgraph.multiprocess as mp
 import multiprocessing as mp
@@ -55,29 +56,38 @@ class SGC(Population):
         train.extend([spkt for spkt in spiketrain])
         # return spiketrain
 
-    def set_sound_stim(self, stim, parallel=False, hearing='normal', loss_lim=99e3):
+    def get_sgc_lost_array(self, cell_ids):
+        """ Return list of SGC cell ids that are to be "removed" due to high-
+        frequency hearing loss.
+        """
+
+        lost_cells = []
+        for cell_id in cell_ids:
+            cell = self.get_cell(cell_id)
+            if cell._cf > self._loss_limit:
+                lost_cells.append(cell_id)
+
+        loss_frac = 0.40
+        ind_remove = set(random.sample(list(range(len(lost_cells))), int(loss_frac*len(lost_cells))))
+        lost_cells = [n for i, n in enumerate(lost_cells) if i in ind_remove]
+        
+        return lost_cells
+
+    def set_sound_stim(self, stim, parallel=False):
         """Set a sound stimulus to generate spike trains for all (real) cells
         in this population.
         """
         real = self.real_cells()
+        lost_reals = self.get_sgc_lost_array(real)
         logging.info("Assigning spike trains to %d SGC cells..", len(real))
         if not parallel:
             for i, ind in enumerate(real):
                 #logging.info("Assigning spike train to SGC %d (%d/%d)", ind, i, len(real))
                 cell = self.get_cell(ind)
                 cell_hearing = 'normal'
-                if (cell.cf > loss_lim) and ('loss' in hearing):
-                    # stim = sound.TonePip(
-                    #     rate=stim.opts['rate'],
-                    #     duration=stim.opts["duration"],
-                    #     f0=stim.opts['f0'],
-                    #     dbspl=stim.opts['dbspl']-20,  # dura 0.2, pip_start 0.1 pipdur 0.04
-                    #     ramp_duration=stim.opts['ramp_duration'],
-                    #     pip_duration=stim.opts["pip_duration"],
-                    #     pip_start=stim.opts["pip_start"],
-                    # )
+                # if (cell.cf > self._loss_limit) and ('loss' in self._hearing):  # Method 1
+                if (ind in lost_reals) and ('loss' in self._hearing):  # Method 3
                     cell_hearing = 'loss'
-                    print('hearing loss implemented for sgc pop')
                 cell.set_sound_stim(stim, self.next_seed, hearing=cell_hearing)
                 self.next_seed += 1
 

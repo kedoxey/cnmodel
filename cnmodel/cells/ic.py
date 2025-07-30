@@ -58,7 +58,7 @@ class IC(Cell):
         
         if psd_type == 'simple':
             # presynaptic terminal
-            if terminal.cell.celltype in ['pyramidal']:
+            if terminal.cell.celltype in ['pyramidal', 'tuberculoventral']:
                 weight = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
                         post_type=self.celltype, field='weight')
                 tau1 = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
