@@ -363,6 +363,7 @@ soma_Cap                  12.0   [1]
     soma_ihpyr_adj_q10        1.0    [2]      (removed for testing)
 [3] Original values (was -62 in tests?)
 
+
 """)
 
 add_table_data('Ceballos_channels', row_key='field', col_key='model_type', 

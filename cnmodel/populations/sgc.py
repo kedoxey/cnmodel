@@ -67,7 +67,7 @@ class SGC(Population):
             if cell._cf > self._loss_limit:
                 lost_cells.append(cell_id)
 
-        loss_frac = 0.40
+        loss_frac = 0.70
         ind_remove = set(random.sample(list(range(len(lost_cells))), int(loss_frac*len(lost_cells))))
         lost_cells = [n for i, n in enumerate(lost_cells) if i in ind_remove]
         
@@ -85,8 +85,8 @@ class SGC(Population):
                 #logging.info("Assigning spike train to SGC %d (%d/%d)", ind, i, len(real))
                 cell = self.get_cell(ind)
                 cell_hearing = 'normal'
-                # if (cell.cf > self._loss_limit) and ('loss' in self._hearing):  # Method 1
-                if (ind in lost_reals) and ('loss' in self._hearing):  # Method 3
+                if (cell.cf > self._loss_limit) and ('loss' in self._hearing):  # Method 1
+                # if (ind in lost_reals) and ('loss' in self._hearing):  # Method 3
                     cell_hearing = 'loss'
                 cell.set_sound_stim(stim, self.next_seed, hearing=cell_hearing)
                 self.next_seed += 1

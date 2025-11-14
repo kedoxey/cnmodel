@@ -27,13 +27,14 @@ class Population(object):
     Subclasses represent populations for a specific cell type, and at least
     need to reimplement the `create_cell` and `connection_stats` methods.
     """
-    def __init__(self, species, size, fields, synapsetype='multisite', hearing='normal', loss_limit=99e3, **kwds):
+    def __init__(self, species, size, fields, synapsetype='multisite', hearing='normal', loss_limit=99e3, syn_opts=None, **kwds):
         self._species = species
         self._post_connections = []  # populations this one connects to
         self._pre_connections = []  # populations connecting to this one
         self._synapsetype = synapsetype
         self._hearing = hearing
         self._loss_limit = loss_limit
+        self._syn_opts = syn_opts
         # fields are a numpy record array with information about each cell in the 
         # population
         fields = [
@@ -127,6 +128,7 @@ class Population(object):
             for pop in self._pre_connections:
                 print(f'pre: {pop.type}, post: {self.type}')
                 pre_cells = self.connect_pop_to_cell(pop, i)
+                print(f'{self.type} {i}: {len(pre_cells)} {pop.type}')
                 if showlog:
                     logging.info("  connected %d cells from %s", len(pre_cells), pop)
                 assert pre_cells is not None
@@ -154,11 +156,15 @@ class Population(object):
         size, dist = self.connection_stats(pop, cell_rec) 
         # Select SGCs from distribution, create, and connect to this cell
         # todo: select sgcs with similar spont. rate?
+        if self._syn_opts:
+            post_opts = self._syn_opts[pop.type] if (pop.type in self._syn_opts) else None
+        else:
+            post_opts = None
         pre_cells = pop.select(size=size, create=False, **dist)
         for j in pre_cells:
             pre_cell = pop.get_cell(j)
             # use default settings for connecting these. 
-            pre_cell.connect(cell, type=self._synapsetype)
+            pre_cell.connect(cell, type=self._synapsetype, post_opts=post_opts)
         return pre_cells
 
     def connection_stats(self, pop, cell_rec):

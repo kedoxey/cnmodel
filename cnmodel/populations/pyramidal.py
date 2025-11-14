@@ -19,6 +19,7 @@ class Pyramidal(Population):
         super(Pyramidal, self).__init__(species, len(freqs), fields=fields, **kwds)
         self._cells['cf'] = freqs
         self._cells['input_sr'] = [np.tile([1., 1., 1.], len(freqs))]
+        # self._erev = erev
     
     
     def create_cell(self, cell_rec):

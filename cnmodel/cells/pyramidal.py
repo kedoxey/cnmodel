@@ -52,7 +52,7 @@ class Pyramidal(Cell):
         if psd_type == 'simple':
             if terminal.cell.celltype in ['sgc', 'dstellate', 'tuberculoventral', 'cartwheel', 'ic']:
                 weight = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
-                        post_type=self.celltype, field='weight')
+                        post_type=self.celltype, field='weight') if 'weight' not in kwds else kwds['weight']
                 tau1 = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
                         post_type=self.celltype, field='tau1')
                 tau2 = data.get('%s_synapse' % terminal.cell.celltype, species=self.species,
@@ -115,7 +115,7 @@ class PyramidalKanold(Pyramidal, Cell):
     """
     def __init__(self,  morphology=None, decorator=None, nach=None,
                  ttx=False, species='rat', modelType=None, modelName=None,
-                 debug=False, temperature=None):
+                 debug=False, temperature=None, erev=-62):
         """
         initialize a pyramidal cell, based on the Kanold-Manis (2001) pyramidal cell model.
         Modifications to the cell can be made by calling methods below. These include
@@ -156,6 +156,9 @@ class PyramidalKanold(Pyramidal, Cell):
             
         debug: boolean (default: False)
             debug is a boolean flag. When set, there will be multiple printouts of progress and parameters.
+
+        erev: int (default: -62)
+            soma leak reversal potential
             
         Returns
         -------
@@ -172,6 +175,8 @@ class PyramidalKanold(Pyramidal, Cell):
         else:
             raise ValueError(f"Species {species:s} and modeltype {modelType:s} not recognized for {self.celltype:s} cells")
 
+        self.erev = erev
+        
         self.spike_source = None
 
         self.status = {self.somaname: True, 'axon': False, 'dendrites': False, 'pumps': False,
@@ -217,6 +222,8 @@ class PyramidalKanold(Pyramidal, Cell):
                   'soma_e_h','soma_leak_erev', 'soma_e_k', 'soma_e_na']:
             pars.additem(g,  data.get(dataset, species=species, model_type=modelType,
             field=g))
+
+        pars.soma_leak_erev = self.erev
         if self.debug:
             pars.show()
         return pars
