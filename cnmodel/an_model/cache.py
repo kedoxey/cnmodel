@@ -138,15 +138,15 @@ def generate_spiketrain(cf, sr, stim, seed, simulator=None, **kwds):
     # copy any given keyword args to the correct model function
     for kwd in kwds:
         if kwd in ihc_kwds:
-            ihc_kwds[kwd] = kwds.pop(kwd)
+            ihc_kwds[kwd] = kwds[kwd]
         if kwd in syn_kwds:
-            syn_kwds[kwd] = kwds.pop(kwd)
+            syn_kwds[kwd] = kwds[kwd]
 
     if simulator is None:
         simulator = detect_simulator()
 
-    if len(kwds) > 0:
-        raise TypeError("Invalid keyword arguments: %s" % list(kwds.keys()))
+    # if len(kwds) > 0:
+    #     raise TypeError("Invalid keyword arguments: %s" % list(kwds.keys()))
     
     if simulator in ['MATLAB', 'matlab']:
         seed_rng(seed)
@@ -163,9 +163,11 @@ def generate_spiketrain(cf, sr, stim, seed, simulator=None, **kwds):
                 stim.sound,
                 fs=fs,
                 anf_num=srgrp,
-                cf=cf,
+                cf=cf,  
                 seed=seed,
-                species='cat')
+                species='cat',
+                **kwds
+                )
         return np.array(sp.spikes.values[0])
     else:  # it remains possible to have a typo.... 
         raise ValueError("anmodel/cache.py: Simulator must be specified as either MATLAB or cochlea; found <%s> of type %s (cochlea? %r)"

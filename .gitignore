@@ -14,7 +14,7 @@ cochleae
 examples/*.pdf
 examples/*.p
 x86_64
-cnmodel/an_model
+# cnmodel/an_model
 doc/build
 build
 dist/

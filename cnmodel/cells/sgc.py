@@ -81,7 +81,7 @@ class DummySGC(SGC):
     """ SGC class with no cell body; this cell only replays a predetermined
     spike train.
     """
-    def __init__(self, cf=None, sr=None, simulator=None):
+    def __init__(self, cf=None, sr=None, simulator=None, **kwds):
         """
         Parameters
         ----------
@@ -113,6 +113,7 @@ class DummySGC(SGC):
         self.status = {self.somaname: True, 'axon': False, 'dendrites': False, 'pumps': False,
                        'na': None, 'species': None, 'modelType': 'dummy', 'ttx': False, 'name': 'DummysGC',
                         'morphology': None, 'decorator': None, 'temperature': None}
+        self._cell_args = kwds
 
     def set_spiketrain(self, times):
         """ Set the times of spikes (in seconds) to be replayed by the cell.
@@ -126,11 +127,17 @@ class DummySGC(SGC):
         """
         self._sound_stim = stim
         ### Method 1
-        spikes = self.generate_spiketrain(stim, seed, simulator)
         if 'loss' in hearing:
-            loss_frac = 0.70
-            ind_remove = set(random.sample(list(range(len(spikes))), int(loss_frac*len(spikes))))
-            spikes = [n for i, n in enumerate(spikes) if i not in ind_remove]
+            cohc = self._cell_args['cohc']
+            cihc = self._cell_args['cihc']
+        else:
+            cohc = 1
+            cihc = 1
+        spikes = self.generate_spiketrain(stim, seed, simulator, cohc=cohc, cihc=cihc)
+        # if 'loss' in hearing:
+        #     loss_frac = 0.70
+        #     ind_remove = set(random.sample(list(range(len(spikes))), int(loss_frac*len(spikes))))
+        #     spikes = [n for i, n in enumerate(spikes) if i not in ind_remove]
 
         ### Method 3
         # if 'loss' in hearing:
@@ -141,11 +148,11 @@ class DummySGC(SGC):
 
         self.set_spiketrain(spikes)
 
-    def generate_spiketrain(self, stim, seed, simulator=None):
+    def generate_spiketrain(self, stim, seed, simulator=None, **kwds):
         if simulator is None:
             simulator = self._simulator
         spikes = an_model.get_spiketrain(cf=self.cf, sr=self.sr, seed=seed, 
-            stim=stim, simulator=simulator)
+            stim=stim, simulator=simulator, **kwds)  #, cohc=self._cell_args['cohc'], cich=self._cell_args['cihc'])
         return spikes * 1000
 
 
