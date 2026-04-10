@@ -156,14 +156,20 @@ class Population(object):
         size, dist = self.connection_stats(pop, cell_rec) 
         # Select SGCs from distribution, create, and connect to this cell
         # todo: select sgcs with similar spont. rate?
+        
         if self._syn_opts:
             post_opts = self._syn_opts[pop.type] if (pop.type in self._syn_opts) else None
         else:
             post_opts = None
         pre_cells = pop.select(size=size, create=False, **dist)
         for j in pre_cells:
+            # TODO: apply hf to cells in hearing loss range
+            # if pre_cell.cf in hearing loss range and post_cell is pyramidal, multiply weight by hf in syn_opts
             pre_cell = pop.get_cell(j)
             # use default settings for connecting these. 
+            pre_cf = pop._get_cf_array(pop.species)[j]
+            if ('pyramidal' in self.type) and (pre_cf >= self._loss_limit):
+                post_opts['weight'] *= self._syn_opts['hf_loss'][pop.type]
             pre_cell.connect(cell, type=self._synapsetype, post_opts=post_opts)
         return pre_cells
 
