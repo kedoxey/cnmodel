@@ -153,6 +153,7 @@ class Population(object):
         """
         cell_rec = self._cells[cell_index]
         cell = cell_rec['cell']
+        cell_cf = self._get_cf_array(self.species)[cell_index]
         size, dist = self.connection_stats(pop, cell_rec) 
         # Select SGCs from distribution, create, and connect to this cell
         # todo: select sgcs with similar spont. rate?
@@ -169,7 +170,7 @@ class Population(object):
             # use default settings for connecting these. 
             pre_cf = pop._get_cf_array(pop.species)[j]
             if ('pyramidal' in self.type) and (pre_cf >= self._loss_limit):
-                post_opts['weight'] *= self._syn_opts['hf_loss'][pop.type]
+                post_opts['weight'] += self._syn_opts['hf_loss'][pop.type]
             pre_cell.connect(cell, type=self._synapsetype, post_opts=post_opts)
         return pre_cells
 
