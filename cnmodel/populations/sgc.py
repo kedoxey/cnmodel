@@ -56,7 +56,7 @@ class SGC(Population):
         train.extend([spkt for spkt in spiketrain])
         # return spiketrain
 
-    def get_sgc_lost_array(self, cell_ids):
+    def get_sgc_lost_array(self, cell_ids, loss_frac):
         """ Return list of SGC cell ids that are to be "removed" due to high-
         frequency hearing loss.
         """
@@ -67,7 +67,7 @@ class SGC(Population):
             if cell._cf > self._loss_limit:
                 lost_cells.append(cell_id)
 
-        loss_frac = 0.70
+        loss_frac = self._loss_frac / 100
         ind_remove = set(random.sample(list(range(len(lost_cells))), int(loss_frac*len(lost_cells))))
         lost_cells = [n for i, n in enumerate(lost_cells) if i in ind_remove]
         
@@ -78,17 +78,19 @@ class SGC(Population):
         in this population.
         """
         real = self.real_cells()
-        lost_reals = self.get_sgc_lost_array(real)
+        lost_reals = self.get_sgc_lost_array(real, self._loss_frac)
         logging.info("Assigning spike trains to %d SGC cells..", len(real))
         if not parallel:
             for i, ind in enumerate(real):
                 #logging.info("Assigning spike train to SGC %d (%d/%d)", ind, i, len(real))
                 cell = self.get_cell(ind)
                 cell_hearing = 'normal'
+                cell_lost = False
                 if (cell.cf > self._loss_limit) and ('loss' in self._hearing):  # Method 1
-                # if (ind in lost_reals) and ('loss' in self._hearing):  # Method 3
                     cell_hearing = 'loss'
-                cell.set_sound_stim(stim, self.next_seed, hearing=cell_hearing)
+                if (ind in lost_reals) and ('loss' in self._hearing):  # Method 3
+                    cell_lost = True
+                cell.set_sound_stim(stim, self.next_seed, hearing=cell_hearing, cell_lost=cell_lost)
                 self.next_seed += 1
 
         else:

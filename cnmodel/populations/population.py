@@ -27,13 +27,14 @@ class Population(object):
     Subclasses represent populations for a specific cell type, and at least
     need to reimplement the `create_cell` and `connection_stats` methods.
     """
-    def __init__(self, species, size, fields, synapsetype='multisite', hearing='normal', loss_limit=99e3, syn_opts=None, **kwds):
+    def __init__(self, species, size, fields, synapsetype='multisite', hearing='normal', loss_limit=99e3, loss_frac=0, syn_opts=None, **kwds):
         self._species = species
         self._post_connections = []  # populations this one connects to
         self._pre_connections = []  # populations connecting to this one
         self._synapsetype = synapsetype
         self._hearing = hearing
         self._loss_limit = loss_limit
+        self._loss_frac = loss_frac
         self._syn_opts = syn_opts
         # fields are a numpy record array with information about each cell in the 
         # population
@@ -170,7 +171,9 @@ class Population(object):
             # use default settings for connecting these. 
             pre_cf = pop._get_cf_array(pop.species)[j]
             if ('pyramidal' in self.type) and (pre_cf >= self._loss_limit):
-                post_opts['weight'] += self._syn_opts['hf_loss'][pop.type]
+                if pop.type in self._syn_opts['hf_loss'].keys():
+                    post_opts['weight'] = self._syn_opts['hf_loss'][pop.type] 
+                    print(f"HF SYN WEIGHT: {pop.type} {post_opts['weight']}")
             pre_cell.connect(cell, type=self._synapsetype, post_opts=post_opts)
         return pre_cells
 
