@@ -155,6 +155,7 @@ class Population(object):
         cell_rec = self._cells[cell_index]
         cell = cell_rec['cell']
         cell_cf = self._get_cf_array(self.species)[cell_index]
+        print(f"PYR-CELL: {cell_cf}")
         size, dist = self.connection_stats(pop, cell_rec) 
         # Select SGCs from distribution, create, and connect to this cell
         # todo: select sgcs with similar spont. rate?
@@ -170,10 +171,12 @@ class Population(object):
             pre_cell = pop.get_cell(j)
             # use default settings for connecting these. 
             pre_cf = pop._get_cf_array(pop.species)[j]
-            if ('pyramidal' in self.type) and (pre_cf >= self._loss_limit):
-                if pop.type in self._syn_opts['hf_loss'].keys():
-                    post_opts['weight'] = self._syn_opts['hf_loss'][pop.type] 
-                    print(f"HF SYN WEIGHT: {pop.type} {post_opts['weight']}")
+            if ('pyramidal' in self.type) and (cell_cf >= self._loss_limit):  
+                if (cell_cf >= self._loss_limit) and (pre_cf >= self._loss_limit): # !HF IMPLEMENTATION HERE! (pre_cf >= self._loss_limit) and
+                    if pop.type in self._syn_opts['hf_loss'].keys():
+                        post_opts['weight'] = self._syn_opts['hf_loss'][pop.type] 
+                        # print(f"HF SYN WEIGHT: {pop.type} {post_opts['weight']}")
+                        print(f"PRE-CELL: {pop.type} {pre_cf}")
             pre_cell.connect(cell, type=self._synapsetype, post_opts=post_opts)
         return pre_cells
 
@@ -372,7 +375,8 @@ class Population(object):
                     cell = u[0,0]
                     cells.append(cell)
         if create:
-            self.create_cells(cells)
+            cell_hearing = 'loss' if ('loss' in self._hearing) and (nearest >= self._loss_limit) else 'normal'
+            self.create_cells(cells, hearing=cell_hearing)
         
         return cells
 
@@ -389,14 +393,14 @@ class Population(object):
         """
         return self._cell_indexes[cell]
         
-    def create_cells(self, cell_inds):
+    def create_cells(self, cell_inds, **kwds):
         """ Instantiate each cell in *cell_inds*, which is a list of indexes into
         self.cells.
         """
         for i in cell_inds:
             if self._cells[i]['cell'] != 0:
                 continue
-            cell = self.create_cell(self._cells[i])
+            cell = self.create_cell(self._cells[i], **kwds)
             self._cells[i]['cell'] = cell
             self._cell_indexes[cell] = i
             

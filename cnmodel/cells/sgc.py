@@ -127,16 +127,40 @@ class DummySGC(SGC):
         """
         self._sound_stim = stim
         
-        if cell_lost:
-            spikes = []
-        else:
-            if 'loss' in hearing:
-                cohc = self._cell_args['cohc']
-                cihc = self._cell_args['cihc']
+        if self._cell_args['sgn_decay']:
+            decay = self._cell_args['sgn_decay']
+            if random.random() < decay['func'](self.cf, decay['freq_half'], decay['width'], decay['smin'], decay['smax']):
+                make_spike_train = True
             else:
-                cohc = 1
-                cihc = 1
+                make_spike_train = False
+        elif cell_lost:
+            make_spike_train = False
+        else:
+            make_spike_train = True
+
+        if make_spike_train:
+            if self._cell_args['cohc_decay']:
+                decay = self._cell_args['cohc_decay']
+                cohc = decay['func'](self.cf, decay['freq_half'], decay['width'], decay['smin'], decay['smax'])
+            else:
+                cohc = self._cell_args['cohc'] if 'loss' in hearing else 1
+
+            if self._cell_args['cihc_decay']:
+                decay = self._cell_args['cihc_decay']
+                cihc = decay['func'](self.cf, decay['freq_half'], decay['width'], decay['smin'], decay['smax'])
+            else:
+                cihc = self._cell_args['cihc'] if 'loss' in hearing else 1
+            
+            # if 'loss' in hearing:
+            #     cohc = self._cell_args['cohc']
+            #     cihc = self._cell_args['cihc']
+            # else:
+            #     cohc = 1
+            #     cihc = 1
             spikes = self.generate_spiketrain(stim, seed, simulator, cohc=cohc, cihc=cihc)
+        
+        else:
+            spikes = []
             
         # if 'loss' in hearing:
         #     loss_frac = 0.70

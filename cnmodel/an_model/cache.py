@@ -64,9 +64,12 @@ def get_spiketrain(cf, sr, stim, seed, verbose=False, **kwds):
                 logging.error("Error reading AN spike train cache file; will "
                     "re-generate. File: %s", filename)
 
+        create = True
+
         if create:
             if verbose:
                 logging.info("Generate new AN spike train: %s", filename)
+            print('!!!Generate new AN spike train!!!')
             data = generate_spiketrain(cf, sr, stim, seed, **kwds)
             if '--no-an-cache' not in sys.argv:
                 np.savez_compressed(filename, data=data)

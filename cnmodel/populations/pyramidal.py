@@ -22,12 +22,12 @@ class Pyramidal(Population):
         # self._erev = erev
     
     
-    def create_cell(self, cell_rec):
+    def create_cell(self, cell_rec, **kwds):
         """ Return a single new cell to be used in this population. The 
         *cell_rec* argument is the row from self.cells that describes the cell 
         to be created.
         """
-        return cells.Pyramidal.create(species=self.species, **self._cell_args)
+        return cells.Pyramidal.create(species=self.species, **self._cell_args, **kwds)
 
     def connection_stats(self, pop, cell_rec):
         """ The population *pop* is being connected to the cell described in 

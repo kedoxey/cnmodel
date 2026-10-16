@@ -42,6 +42,10 @@ class Sound(object):
         if self._sound is None:
             self._sound = self.generate()
         return self._sound
+
+    @sound.setter
+    def sound(self, value):
+        self._sound = value
         
     @property
     def time(self):
@@ -253,6 +257,76 @@ class NoisePip(Sound):
         o = self.opts
         return pipnoise(self.time, o['ramp_duration'], o['rate'],
                         o['dbspl'], o['pip_duration'], o['pip_start'], o['seed'])
+
+
+class NotchNoisePip(Sound):
+    """ One or more noise pips with cosine-ramped edges.
+    
+    Parameters
+    ----------
+    rate : float
+        Sample rate in Hz
+    duration : float
+        Total duration of the sound
+    seed : int >= 0
+        Random seed
+    dbspl : float
+        Maximum amplitude of tone in dB SPL. 
+    pip_duration : float
+        Duration of each pip including ramp time. Must be at least 
+        2 * ramp_duration.
+    pip_start : array-like
+        Start times of each pip
+    ramp_duration : float
+        Duration of a single ramp period (from minimum to maximum). 
+        This may not be more than half of pip_duration.
+    notch_frequency: float
+        Frequency position of notch in Hz
+    notch_width: float
+        Freqeuency width of notch in Hz
+        
+    """
+    def __init__(self, **kwds):
+        for k in ['rate', 'duration', 'dbspl', 'pip_duration', 'pip_start', 'ramp_duration', 'notch_frequency', 'notch_width', 'seed']:
+            if k not in kwds:
+                raise TypeError("Missing required argument '%s'" % k)
+        if kwds['pip_duration'] < kwds['ramp_duration'] * 2:
+            raise ValueError("pip_duration must be greater than (2 * ramp_duration).")
+        if kwds['seed'] < 0:
+            raise ValueError("Random seed must be integer > 0")
+        
+        Sound.__init__(self, **kwds)
+        
+    def generate(self):
+        """
+        Call to compute the noise pips
+        
+        Returns
+        -------
+        array : 
+            generated waveform
+        
+        """
+        o = self.opts
+        pip_noise = pipnoise(self.time, o['ramp_duration'], o['rate'],
+                        o['dbspl'], o['pip_duration'], o['pip_start'], o['seed'])
+
+        N = len(pip_noise)
+        X = np.fft.rfft(pip_noise)
+        freq = np.fft.rfftfreq(N, d=self.dt)
+        f_low = o['notch_frequency'] - o['notch_width'] / 2
+        f_high = o['notch_frequency'] + o['notch_width'] / 2
+        idx = (freq >= f_low) & (freq <= f_high)
+        X[idx] = 0
+        x = np.fft.irfft(X, n=N)
+        peak = np.max(np.abs(x))
+        if peak > 0: x = x / peak
+
+        evoked_time_cond = (o['pip_start'][0] < self.time) & (self.time < o['pip_start'][0]+o['pip_duration'])
+        pip_noise[evoked_time_cond] = x[evoked_time_cond]
+
+        return pip_noise
+
 
 class ClickTrain(Sound):
     """ One or more clicks (rectangular pulses).

@@ -336,7 +336,7 @@ add_table_data('POK_channels', row_key='field', col_key='model_type',
                species='rat', data=u"""
 
 This table describes the ion channel densities and voltage shifts for rat DCN pyramidal cells,
-from Kanold and Manis, 2001
+from  
 
 ------------------------------------------------------------------------------------------------------------------------------------------
                           pyramidal   

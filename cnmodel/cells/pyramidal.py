@@ -115,7 +115,7 @@ class PyramidalKanold(Pyramidal, Cell):
     """
     def __init__(self,  morphology=None, decorator=None, nach=None,
                  ttx=False, species='rat', modelType=None, modelName=None,
-                 debug=False, temperature=None, erev=-62):
+                 debug=False, temperature=None, erev=-62, erev_loss=-62, hearing='normal'):
         """
         initialize a pyramidal cell, based on the Kanold-Manis (2001) pyramidal cell model.
         Modifications to the cell can be made by calling methods below. These include
@@ -175,7 +175,7 @@ class PyramidalKanold(Pyramidal, Cell):
         else:
             raise ValueError(f"Species {species:s} and modeltype {modelType:s} not recognized for {self.celltype:s} cells")
 
-        self.erev = erev
+        self.erev = erev if 'normal' in hearing else erev_loss
         
         self.spike_source = None
 
